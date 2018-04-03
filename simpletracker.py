@@ -2,8 +2,7 @@ import cv2
 import numpy as np
 import time
 
-
-class OliObjectTracker:
+class SimpleTracker:
     def __init__(self, frame, bbox):
         self.bbox = bbox
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -27,13 +26,16 @@ class OliObjectTracker:
                     bbox[1] + y:bbox[1] + bbox[3] + y,
                     bbox[0] + x:bbox[0] + bbox[2] + x]
                 if np.size(current_window) != bbox[3] * bbox[2]: continue
-                current_window = current_window.astype(float, copy=True)
+                current_window = current_window.astype(int, copy=True)
+                self.expected = self.expected.astype(int, copy=True)
 
                 self.time1 += time.time() - s
 
                 s = time.time()
 
                 # full_errors = (current_window - self.expected)
+                full_errors = np.zeros(np.shape(current_window))
+                # cv2.subtract(current_window, self.expected, full_errors)
                 full_errors = np.subtract(current_window, self.expected)
                 full_errors = full_errors.reshape(1, np.size(current_window))
                 error = np.sum(full_errors)
@@ -44,8 +46,8 @@ class OliObjectTracker:
                     best_error_value = error
                     best_error_location = (x, y)
 
-        # print("time1 " + repr(self.time1))
-        # print("time2 " + repr(self.time2))
+        print("time1 " + repr(self.time1))
+        print("time2 " + repr(self.time2))
 
         self.bbox = (
             self.bbox[0] + best_error_location[0],

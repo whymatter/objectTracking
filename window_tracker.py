@@ -3,7 +3,7 @@ import numpy as np
 
 
 class WindowTracker:
-    RADIUS = 10
+    RADIUS = 20
 
     def __init__(self, frame, bbox):
         frame_gray = self.norm(frame)
@@ -24,10 +24,11 @@ class WindowTracker:
         best_error_location = (0, 0)
 
         # extend window by r pixel
-        current_window = frame_gray[
-            bbox[1] - RADIUS:bbox[1] + RADIUS + bbox[3],
-            bbox[0] - RADIUS:bbox[0] + RADIUS + bbox[2]]
+        # current_window = frame_gray[
+        #     bbox[1] - WindowTracker.RADIUS:bbox[1] + WindowTracker.RADIUS + bbox[3],
+        #     bbox[0] - WindowTracker.RADIUS:bbox[0] + WindowTracker.RADIUS + bbox[2]]
 
+        r = WindowTracker.RADIUS
         for x in range(-r, r + 1):
             for y in range(-r, r + 1):
                 current_window = frame_gray[
@@ -35,9 +36,9 @@ class WindowTracker:
                     bbox[0] + x:bbox[0] + bbox[2] + x]
                 if np.size(current_window) != bbox[3] * bbox[2]:
                     continue
-                current_window = current_window.astype(float, copy=True)
+                # current_window = current_window.astype(float, copy=True)
 
-                full_errors = (current_window - self.expected)
+                full_errors = cv2.subtract(current_window, self.expected)
                 full_errors = full_errors.reshape(1, np.size(current_window))
                 error = np.sum(full_errors)
 
